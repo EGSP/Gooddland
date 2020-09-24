@@ -1,0 +1,3 @@
+anomalyMapSeed: 500000;
+heatMapSeed: 13455;
+islandSize: 30;
