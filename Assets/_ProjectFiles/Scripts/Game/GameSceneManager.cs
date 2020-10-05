@@ -78,7 +78,8 @@ namespace Game.Scenes
         
             SceneManager.SetActiveScene(loadedScenes.Find(x=>x.name == sceneName));
 
-            yield return new WaitForEndOfFrame();
+            // Ожидание в одну секунду.
+            yield return new WaitForSeconds(0.2f);
             sceneLoadRoutine = null;
             
             callBack.On();

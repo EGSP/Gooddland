@@ -1,0 +1,5 @@
+{
+    "$id": 0,
+    "$type": "0|Gasanov.Utils.SaveUtilities.DataProfile, Scripts",
+    "Name": "pOROTORO"
+}

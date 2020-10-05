@@ -39,7 +39,7 @@ namespace Gasanov.Core
         /// <summary>
         /// Событие обратного вызова.
         /// </summary>
-        public event Action on;
+        public event Action on = delegate {  };
         
         /// <summary>
         /// Вызывает событие "on".

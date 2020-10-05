@@ -44,21 +44,7 @@ namespace World.Generators
         [SerializeField] private double anomalyLacunarity; // 7.1
 
         
-        /// <summary>
-        /// Карта высот.
-        /// </summary>
-        private Grid<float> heightMap;
-
-        /// <summary>
-        /// Карта температуры.
-        /// </summary>
-        private Grid<float> heatMap;
-
-        /// <summary>
-        /// Карта аномалий.
-        /// </summary>
-        private Grid<float> anomalyMap;
-
+        
         public Grid<float> GenerateHeightMap(int mapLength, int mapWidth, int seed = -1)
         {
             if (seed == -1)
@@ -67,7 +53,7 @@ namespace World.Generators
             var lengthSample = mapLength * SampleModifier;
             var widthSample = mapWidth * SampleModifier;
             
-            heightMap = new Grid<float>(mapLength, mapWidth);
+            var heightMap = new Grid<float>(mapLength, mapWidth);
             
             var heightGenerator = new ImplicitFractal(
                 heightFractalType, 
@@ -91,6 +77,39 @@ namespace World.Generators
 
             return heightMap;
         }
+        
+        public Grid<float> GenerateLandscapeMap(int mapLength, int mapWidth, int seed = -1)
+        {
+            if (seed == -1)
+                seed = Random.Range(0, int.MaxValue);
+            
+            var lengthSample = mapLength * SampleModifier;
+            var widthSample = mapWidth * SampleModifier;
+            
+            var landscapeMap = new Grid<float>(mapLength, mapWidth);
+            
+            var landscapeGenerator = new ImplicitFractal(
+                heightFractalType, 
+                BasisType.Simplex, 
+                InterpolationType.Quintic,
+                2, 2, 0.45D){Seed = seed};
+
+            landscapeMap.ForEachSet((x,y) =>
+            {
+                // Координаты шума будут не рядом, а на расстоянии (1/worldXXX)
+                var xSample = x * lengthSample / (float) mapLength;
+                var ySample = y * lengthSample/ (float) mapWidth;
+
+                var height = (float)landscapeGenerator.Get(xSample, ySample);
+
+                // Перевод из -1 -- 1 в 0 -- 1 
+                height = height * 0.5f + 0.5f;
+                
+                return height;
+            });
+
+            return landscapeMap;
+        }
 
         public Grid<float> GenerateHeatMap(int mapLength, int mapWidth, int seed = -1)
         {
@@ -100,7 +119,7 @@ namespace World.Generators
             var lengthSample = mapLength * SampleModifier;
             var widthSample = mapWidth * SampleModifier;
             
-            heatMap = new Grid<float>(mapLength, mapWidth);
+            var heatMap = new Grid<float>(mapLength, mapWidth);
 
             var gradientGenerator = new ImplicitGradient(1, 1, 0, 1,
                 1, 1, 1, 1,
@@ -143,7 +162,7 @@ namespace World.Generators
             var lengthSample = mapLength * SampleModifier;
             var widthSample = mapWidth * SampleModifier;
             
-            anomalyMap = new Grid<float>(mapLength,mapWidth);
+            var anomalyMap = new Grid<float>(mapLength,mapWidth);
 
             var anomalyGenerator = new ImplicitFractal(
                 anomalyFractalType, 
@@ -179,38 +198,6 @@ namespace World.Generators
             return anomalyMap;
         }
         
-        public Grid<float> GenerateExtraMap(int mapLength, int mapWidth, int seed = -1)
-        {
-            if (seed == -1)
-                seed = Random.Range(0, int.MaxValue);
-            
-            var lengthSample = mapLength * SampleModifier;
-            var widthSample = mapWidth * SampleModifier;
-            
-            heightMap = new Grid<float>(mapLength, mapWidth);
-            
-            var heightGenerator = new ImplicitFractal(
-                heightFractalType, 
-                BasisType.Simplex, 
-                InterpolationType.Quintic,
-                2, 2, 0.45D){Seed = seed};
-
-            heightMap.ForEachSet((x,y) =>
-            {
-                // Координаты шума будут не рядом, а на расстоянии (1/worldXXX)
-                var xSample = x * lengthSample / (float) mapLength;
-                var ySample = y * lengthSample/ (float) mapWidth;
-
-                var height = (float)heightGenerator.Get(xSample, ySample);
-
-                // Перевод из -1 -- 1 в 0 -- 1 
-                height = height * 0.5f + 0.5f;
-                
-                return height;
-            });
-
-            return heightMap;
-        }
 
         /// <summary>
         /// Добавляет сферическую маску к сетке чисел.
